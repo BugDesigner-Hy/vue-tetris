@@ -1,7 +1,7 @@
 <template>
   <div class="tetris">
     <div class="score">{{score}}</div>
-    <div class="main">
+    <div class="main" @click="pause">
       <div class="row" v-for="row in blocks" :key="Date.now() * Math.random()">
         <div
           class="diamond"
@@ -21,7 +21,10 @@
       <svg class="icon right" aria-hidden="true" @click="right">
         <use xlink:href="#icon-zuobeifen" />
       </svg>
-      <svg class="icon rotate" aria-hidden="true" @click="rotate">
+      <svg class="icon rotate" aria-hidden="true" @click="rotate" v-show="!isOver">
+        <use xlink:href="#icon-shunshizhenxuanzhuandu" />
+      </svg>
+      <svg class="icon rotate" aria-hidden="true" @click="restart" v-show="isOver">
         <use xlink:href="#icon-xuanzhuan" />
       </svg>
     </div>
@@ -34,22 +37,91 @@ export default {
     return {
       id: "",
       score: 0,
+      isPause: false,
+      isOver: false,
       next: [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+      blocksRefresh: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ],
       blocks: [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 2, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ],
+      savePoint: "",
+      blocksGameOver: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 0, 1, 0, 0, 1, 0, 1, 0],
+        [0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+        [0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+        [0, 1, 0, 1, 0, 0, 1, 0, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 0, 1, 0, 0, 1, 0, 1, 0],
+        [0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+        [0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+        [0, 1, 0, 1, 0, 0, 1, 0, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      ],
+      blocksGamePause: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -103,6 +175,30 @@ export default {
           [[0, 0, 0], [1, 1, 1], [1, 0, 0]],
           [[1, 1, 0], [0, 1, 0], [0, 1, 0]]
         ],
+        [
+          [[1, 1, 1], [1, 0, 1], [0, 0, 0]],
+          [[0, 1, 1], [0, 0, 1], [0, 1, 1]],
+          [[0, 0, 0], [1, 0, 1], [1, 1, 1]],
+          [[1, 1, 0], [1, 0, 0], [1, 1, 0]]
+        ],
+        [
+          [[0, 1, 0], [0, 1, 0], [0, 0, 0]],
+          [[0, 0, 0], [0, 1, 1], [0, 0, 0]],
+          [[0, 0, 0], [0, 1, 0], [0, 1, 0]],
+          [[0, 0, 0], [1, 1, 0], [0, 0, 0]]
+        ],
+        [
+          [[1, 1, 0], [1, 0, 0], [0, 0, 0]],
+          [[0, 1, 1], [0, 0, 1], [0, 0, 0]],
+          [[0, 0, 0], [0, 0, 1], [0, 1, 1]],
+          [[0, 0, 0], [1, 0, 0], [1, 1, 0]]
+        ],
+        [
+          [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+          [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+          [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+          [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+        ],
         //田
         [[[1, 1], [1, 1]], [[1, 1], [1, 1]], [[1, 1], [1, 1]], [[1, 1], [1, 1]]]
       ],
@@ -128,12 +224,13 @@ export default {
     document.removeEventListener("keydown", _this.control);
   },
   mounted() {
+    this.add();
     this.id = setInterval(() => {
       this.bottomTest();
       this.clearTest();
       this.down();
       this.moveTest();
-    }, 500);
+    }, 1000);
   },
   methods: {
     change(prev, next) {
@@ -157,6 +254,9 @@ export default {
       this.next = [...this.next];
     },
     left() {
+      if (this.isOver || this.isPause) {
+        return;
+      }
       let canMove = true;
       for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 10; x++) {
@@ -183,6 +283,9 @@ export default {
       this.blocks = [...this.blocks];
     },
     right() {
+      if (this.isOver || this.isPause) {
+        return;
+      }
       let canMove = true;
       for (let y = 0; y < 20; y++) {
         for (let x = 9; x >= 0; x--) {
@@ -209,6 +312,9 @@ export default {
       this.blocks = [...this.blocks];
     },
     down() {
+      if (this.isOver || this.isPause) {
+        return;
+      }
       let canMove = true;
       for (let y = 19; y > 0; y--) {
         for (let x = 0; x < 10; x++) {
@@ -269,7 +375,8 @@ export default {
     add() {
       this.origin = [0, 3];
       this.angle = 0;
-      this.type = Math.floor(Math.random() * 7);
+      this.type = Math.floor(Math.random() * 11);
+      //   this.type = 10;
       let canAdd = true;
       this.getpos(this.type, this.angle, this.origin).forEach(pos => {
         if (this.blocks[pos[0]][pos[1]] == 2) {
@@ -283,11 +390,16 @@ export default {
         this.show();
       } else {
         this.score = "GAME OVER";
+        this.isOver = true;
+        this.blocks = [...this.blocksGameOver];
         clearInterval(this.id);
       }
       //   this.showNext();
     },
     rotate() {
+      if (this.isOver || this.isPause) {
+        return;
+      }
       let newAngle = (this.angle + 1) % 4;
       let canRotate = true;
       let pos = this.getpos(this.type, newAngle, this.origin);
@@ -379,6 +491,36 @@ export default {
       } else {
         return "#fafafa";
       }
+    },
+    pause() {
+      if (this.isOver) {
+        return;
+      }
+      this.isPause = !this.isPause;
+      if (this.isPause) {
+        clearInterval(this.id);
+        this.savePoint = this.blocks;
+        this.blocks = [...this.blocksGamePause];
+      } else {
+        this.blocks = [...this.savePoint];
+        this.run();
+      }
+    },
+    run() {
+      this.id = setInterval(() => {
+        this.bottomTest();
+        this.clearTest();
+        this.down();
+        this.moveTest();
+      }, 1000);
+    },
+    restart() {
+      this.origin = [0, 3];
+      this.blocks = [...this.blocksRefresh];
+      this.score = 0;
+      this.isPause = false;
+      this.run();
+      this.isOver = false;
     }
   }
 };
@@ -406,7 +548,7 @@ export default {
     // margin: 5px;
   }
   .main {
-    width: inherit;
+    width: 90%;
     height: 70%;
     display: flex;
     flex-direction: column;
@@ -426,7 +568,7 @@ export default {
         height: 100%;
         background-color: #fafafa;
         box-sizing: border-box;
-        margin:0.1rem;
+        margin: 0.1rem;
         border-radius: 0.1rem;
       }
     }
@@ -437,9 +579,8 @@ export default {
     height: 20%;
     .icon {
       position: absolute;
-      width: 3rem;
-      height: 3rem;
-      font-size: 1rem;
+      width: 3.8rem;
+      height: 3.8rem;
     }
     .down {
       bottom: 1rem;
@@ -454,10 +595,10 @@ export default {
       left: 8.3rem;
     }
     .rotate {
-      width: 5rem;
-      height: 5rem;
+      width: 5.5rem;
+      height: 5.5rem;
       right: 2.8rem;
-      top: 1.5rem;
+      top: 2.5rem;
     }
   }
 }
