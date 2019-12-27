@@ -1,19 +1,2 @@
 # vue-tetris
-
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+用vuex写的一个俄罗斯方块的游戏 运行流畅 操作简单
